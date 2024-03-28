@@ -2,6 +2,8 @@
 import {getCurrentTab} from "./utils.js";
 
 const addNewBookmark = (bookmarksElement, bookmark) => {
+    
+    
     const bookmarkTitleElement = document.createElement("div");
     const newBookmarkElement = document.createElement("div");
     const controlsElement = document.createElement("div");
@@ -22,14 +24,14 @@ const addNewBookmark = (bookmarksElement, bookmark) => {
     newBookmarkElement.appendChild(controlsElement);
     bookmarksElement.appendChild(newBookmarkElement);    //appends newBookmarkElement to bookmarksElement
 
-};
+}
 
 const viewBookmarks = (currentBookmarks=[]) => {
     const bookmarksElement = document.getElementById("bookmarks");
     bookmarksElement.innerHTML = "";                                       //if there are bookmarks then its set to nothing
     
     if(currentBookmarks.length >0){
-        for(let i=0; 1 < currentBookmarks.length;i++){   
+        for(let i=0; i < currentBookmarks.length;i++){   
             const bookmark = currentBookmarks[i];
             addNewBookmark(bookmarksElement,bookmark);  //traverses current bookmarks and adds them one at a time
         }
