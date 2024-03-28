@@ -36,6 +36,7 @@ const viewBookmarks = (currentBookmarks=[]) => {
     }else{
         bookmarksElement.innerHTML = '<i class="row">No bookmarks to show</i>'; //if there are no bookmarks
     }
+    return;
 };
 
 const onPlay = async e  => {  // async 
@@ -55,14 +56,21 @@ const onDelete = async e => {
 
     bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete)
 
-    chrom.tabs.sendMessage(activeTab.id,{
+    chrome.tabs.sendMessage(activeTab.id,{
         type:"DELETE",
         value:bookmarkTime
     }, viewBookmarks) // passes in the callback function to refresh bookmarks so deletions show up right away
 
 };
 
-const setBookmarkAttributes =  () => {};
+const setBookmarkAttributes =  (src, eventListener, controlParentElement) => {  //gives the bookmarks thier images
+    const controlElement = document.createElement("img");
+
+  controlElement.src = "assets/" + src + ".png";
+  controlElement.title = src;
+  controlElement.addEventListener("click", eventListener);
+  controlParentElement.appendChild(controlElement);
+};
 
 document.addEventListener("DOMContentLoaded", async () => { // native window event that fires when html has initially been loaded
     const activeTab = await getCurrentTab();
@@ -83,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => { // native window eve
    }else{  //when its not a youtube page or current Video retunrs false it will diplay not a youtube page
     const container = document.getElementsByClassName("container")[0];
 
-    container.innerHTML ='<div class="title">This is not  YouTube page.</div>';
+    container.innerHTML ='<div class="title">This is not a YouTube Video.</div>';
 
    }
 

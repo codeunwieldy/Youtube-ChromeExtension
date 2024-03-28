@@ -4,7 +4,7 @@ chrome.tabs.onUpdated.addListener((tabId, tab) => {
         const urlParameters = new URLSearchParams(queryParameters);
         console.log(urlParameters);
 
-        chrom.tabs.sendMessage(tabId, {
+        chrome.tabs.sendMessage(tabId, {
             type:"NEW",                      //type of the event
             videoId: urlParameters.get("v")   // unique video id we will be storing
         })
