@@ -1,50 +1,30 @@
 (() => {
     let youtubeLeftControls, youtubePlayer;
-    let currentVideo = "";
-    let currentVideoBookmarks = [];
+    let currentVideo ="";
 
-    chrome.runtime.onMessage.addListener((obj, sender, response) => {
-        const { type, value, videoId } = obj;
-
-        if (type === "NEW") {
+    chrome.runtime.onMessage.addListener((obj, sender, responce) => {
+        const {type, value, videoId}= obj;
+        if(type ==="NEW"){
             currentVideo = videoId;
             newVideoLoaded();
         }
+
     });
 
-    const newVideoLoaded = () => {
-        const bookmarkBtnExists = document.getElementsByClassName("bookmark-btn")[0];
-        console.log(bookmarkBtnExists);
+    const newVideoLoaded = () =>{
+        const bookmarkBtnExists = document.getElementsByClassName("bookmark-btn")[0];  //From css
 
-        if (!bookmarkBtnExists) {
+        if(!bookmarkBtnExists){  // if the button does not exist on the dom it will be created
             const bookmarkBtn = document.createElement("img");
 
             bookmarkBtn.src = chrome.runtime.getURL("assets/bookmark.png");
-            bookmarkBtn.className = "ytp-button " + "bookmark-btn";
-            bookmarkBtn.title = "Click to bookmark current timestamp";
-
-            youtubeLeftControls = document.getElementsByClassName("ytp-left-controls")[0];
-            youtubePlayer = document.getElementsByClassName("video-stream")[0];
-            
-            youtubeLeftControls.append(bookmarkBtn);
-            bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
+            bookmarkBtn.className = "ytp-button " + "bookmark-btn";       //styling in the css
+            bookmarkBtn.title = "Click to bookmark current timestamp";   
         }
     }
 
-    const addNewBookmarkEventHandler = () => {
-        const currentTime = youtubePlayer.currentTime;
-        const newBookmark = {
-            time: currentTime,
-            desc: "Bookmark at " + getTime(currentTime),
-        };
-        console.log(newBookmark);
 
-        chrome.storage.sync.set({
-            [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time))
-        });
-    }
-
-    newVideoLoaded();
+    
 })();
 
 const getTime = t => {
