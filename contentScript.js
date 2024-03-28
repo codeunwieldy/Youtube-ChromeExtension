@@ -4,10 +4,18 @@
     let currentVideoBookmarks = [];
 
     chrome.runtime.onMessage.addListener((obj, sender, responce) => {
-        const {type, value, videoId}= obj;
+        const {type, value, videoId}= obj; //takes values out of object
         if(type ==="NEW"){
             currentVideo = videoId;
             newVideoLoaded();
+        }else if(type ==="PLAY"){
+            youtubePlayer.currentTime = value; //value is time 
+        }else if(type ==="DELETE"){
+            currentVideoBookmarks = currentVideoBookmarks.filter((b)=>b.time != value); //filtering by time so the time does not equal time being passed in which is the one being deleted 
+            chrome.storage.sync.set({ [currentVideo]: JSON.stringify(currentVideoBookmarks) }) ;   //syncs chrome storage so if the page reloads the deleted part does not show up
+
+            responce(currentVideoBookmarks);
+
         }
 
     });
@@ -29,7 +37,7 @@
         if(!bookmarkBtnExists){  // if the button does not exist on the dom it will be created
             const bookmarkBtn = document.createElement("img");
 
-            bookmarkBtn.src = chrome.runtime.getURL("assets/bookmark.png");
+            bookmarkBtn.src = chrome.runtime.getURL("assets/bookmark.png"); //sets the picture for the bookmark
             bookmarkBtn.className = "ytp-button " + "bookmark-btn";       //styling in the css
             bookmarkBtn.title = "Click to bookmark current timestamp";   
 

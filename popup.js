@@ -4,15 +4,22 @@ import {getCurrentTab} from "./utils.js";
 const addNewBookmark = (bookmarksElement, bookmark) => {
     const bookmarkTitleElement = document.createElement("div");
     const newBookmarkElement = document.createElement("div");
+    const controlsElement = document.createElement("div");
 
     bookmarkTitleElement.textContent = bookmark.desc; // sets the discription bookmark description 
     bookmarkTitleElement.className = "bookmark-title";
+
+    controlsElement.className = "bookmakr-controls"
 
     newBookmarkElement.id = "bookmark-" + bookmark.time; // sets a unique id name using the time stamp
     newBookmarkElement.className = "bookmark"; //gives it a class to be manipulated in css
     newBookmarkElement.setAttribute("timestamp",bookmark.time);  //gives it an attribute
 
+    setBookmarkAttributes("play",onPlay,controlsElement); //sets attribute to play image on the controls element
+    setBookmarkAttributes("delete",onDelete,controlsElement);
+
     newBookmarkElement.appendChild(bookmarkTitleElement); // appends bookmarkTitleElement to the newBookmarkElement div
+    newBookmarkElement.appendChild(controlsElement);
     bookmarksElement.appendChild(newBookmarkElement);    //appends newBookmarkElement to bookmarksElement
 
 };
@@ -21,7 +28,7 @@ const viewBookmarks = (currentBookmarks=[]) => {
     const bookmarksElement = document.getElementById("bookmarks");
     bookmarksElement.innerHTML = "";                                       //if there are bookmarks then its set to nothing
     
-    if(currentBookMarks.length >0){
+    if(currentBookmarks.length >0){
         for(let i=0; 1 < currentBookmarks.length;i++){   
             const bookmark = currentBookmarks[i];
             addNewBookmark(bookmarksElement,bookmark);  //traverses current bookmarks and adds them one at a time
@@ -31,16 +38,36 @@ const viewBookmarks = (currentBookmarks=[]) => {
     }
 };
 
-const onPlay = e => {};
+const onPlay = async e  => {  // async 
+    const bookmarkTime =e.target.parentNode.parentNode.getAttribute("timestamp");
+    const activeTab = await getCurrentTab();
 
-const onDelete = e => {};
+    chrome.tabs.sendMessage(activeTab.id, {
+        type: "PLAY",
+        value : bookmarkTime
+    })
+};
+
+const onDelete = async e => {
+    const activeTab = await getCurrentTab();
+    const bookmarkTime =e.target.parentNode.parentNode.getAttribute("timestamp");
+    const bookmarkElementToDelete = document.getElementById("bookmark-"+bookmarkTime); // grabs the elemnt to delete tothe unique Id given on creation
+
+    bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete)
+
+    chrom.tabs.sendMessage(activeTab.id,{
+        type:"DELETE",
+        value:bookmarkTime
+    }, viewBookmarks) // passes in the callback function to refresh bookmarks so deletions show up right away
+
+};
 
 const setBookmarkAttributes =  () => {};
 
-document.addEventListener("DOMContentLoaded", async() => { // native window event that fires when html has initially been loaded
+document.addEventListener("DOMContentLoaded", async () => { // native window event that fires when html has initially been loaded
     const activeTab = await getCurrentTab();
     const queryParameters = activeTab.url.split("?")[1];
-    const urlParameters = new urlSearchParams(queryParameters);
+    const urlParameters = new URLSearchParams(queryParameters);
 
     const currentVideo = urlParameters.get("v");
 
