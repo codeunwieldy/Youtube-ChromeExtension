@@ -53,22 +53,28 @@ const onPlay = async e  => {  // async
         value : bookmarkTime,
     });
 };
-
 const onDelete = async e => {
     const activeTab = await getCurrentTab();
-    const bookmarkTime =e.target.parentNode.parentNode.getAttribute("timestamp");
-    const bookmarkElementToDelete = document.getElementById("bookmark-"+bookmarkTime); // grabs the elemnt to delete tothe unique Id given on creation
+    const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
+    const bookmarkElementToDelete = document.getElementById("bookmark-" + bookmarkTime); // grabs the element to delete using the unique ID
 
-    bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete);
+    console.log("Event Target:", e.target);
+    console.log("Bookmark Element to Delete:", bookmarkElementToDelete);
 
-    chrome.tabs.sendMessage(activeTab.id,{
-        type:"DELETE",
-        value:bookmarkTime,
-    }, viewBookmarks); // passes in the callback function to refresh bookmarks so deletions show up right away
+    if (bookmarkElementToDelete) {
+        bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete);
 
+        chrome.tabs.sendMessage(activeTab.id, {
+            type: "DELETE",
+            value: bookmarkTime,
+        }, viewBookmarks); // passes in the callback function to refresh bookmarks so deletions show up right away
+    } else {
+        console.error("Bookmark element not found for deletion.");
+    }
 };
 
-const setBookmarkAttributes =  (src, eventListener, controlParentElement) => {  //gives the bookmarks thier images
+
+const setBookmarkAttributes =  (src, eventListener, controlParentElement) => {  //gives the bookmarks thier images / is called in the addnewBookmarks function
     const controlElement = document.createElement("img");
 
   controlElement.src = "assets/" + src + ".png";

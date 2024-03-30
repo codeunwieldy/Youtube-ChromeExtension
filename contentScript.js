@@ -12,7 +12,7 @@
             youtubePlayer.currentTime = value; //value is time 
         }else if(type ==="DELETE"){
             currentVideoBookmarks = currentVideoBookmarks.filter((b)=>b.time != value); //filtering by time so the time does not equal time being passed in which is the one being deleted 
-            chrome.storage.sync.set({ [currentVideo]: JSON.stringify(currentVideoBookmarks) }) ;   //syncs chrome storage so if the page reloads the deleted part does not show up
+            chrome.storage.sync.set({ [currentVideo]: JSON.stringify(currentVideoBookmarks) });   //syncs chrome storage so if the page reloads the deleted part does not show up
 
             responce(currentVideoBookmarks);
 
@@ -20,16 +20,21 @@
 
     });
 
-    const fetchBookmarks = () =>{       
-        return new Promise ((resolve)=>{      //retunr promise so we can resolve async
-            chrome.storage.sync.get([currentVideo], (obj) =>{  //gets from chrome storage and takes an object
-                resolve(obj[currentVideo] ? JSON.parse(obj[currentVideo]): []);  // resolve to find any bookmarks when indexing using the current video
-                                                                                 //if it find it then the data will be parsed and if not will return empty array
-
+    
+    const fetchBookmarks = () => {       
+        return new Promise((resolve) => {       //retunr promise so we can resolve async
+            chrome.storage.sync.get([currentVideo], (obj) => {       // resolve to find any bookmarks when indexing using the current video
+                if (chrome.runtime.lastError) {
+                    console.error("Error fetching bookmarks:", chrome.runtime.lastError.message);       
+                    resolve([]); // Return empty array if there's an error
+                } else {
+                    resolve(obj[currentVideo] ? JSON.parse(obj[currentVideo]) : []);     //if it find it then the data will be parsed and if not will return empty array
+                }
             });
         });
     };
-
+    
+   
     const newVideoLoaded = async () => {
         const bookmarkBtnExists = document.getElementsByClassName("bookmark-btn")[0];
         currentVideoBookmarks = await fetchBookmarks();
@@ -48,22 +53,24 @@
         }
     }
         
-
-      
-        const addNewBookmarkEventHandler = async () => {
-            const currentTime = youtubePlayer.currentTime;  //current time is taken from the current time of the youtube video in seconds
-            const newBookmark = {
+    const addNewBookmarkEventHandler = async () => {
+        const currentTime = youtubePlayer.currentTime; //current time is taken from the current time of the youtube video in seconds
+        const newBookmark = {
             time: currentTime,
-            desc: "Bookmark at " + getTime(currentTime),  // get time function converts the seconds into time 
-        
-            };
-
-        currentVideoBookmarks = await fetchBookmarks(); // resolves promise
-        
-        chrome.storage.sync.set({  //this is straight from chromes ducumentation
-            [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time)) //stores the data in JSON,
-        });                                                                                                     // adds to the current bookmakr list the times of bookmarks in order
-      };
+            desc: "Bookmark at " + getTime(currentTime), // get time function converts the seconds into time 
+        };
+    
+        try {
+            currentVideoBookmarks = await fetchBookmarks(); // resolves promise
+            await chrome.storage.sync.set({             //this is straight from chromes ducumentation
+                [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time)) //stores the data in JSON,
+            });    // adds to the current bookmakr list the times of bookmarks in order
+        } catch (error) {
+            console.error("Error adding new bookmark:", error);
+        }
+    };
+      
+      
       newVideoLoaded();  //calling this function anytime the match pattern from the manifest file is met
             // only problem is the button is appended twice but thats fine.
     
