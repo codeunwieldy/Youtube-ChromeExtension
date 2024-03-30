@@ -34,11 +34,7 @@
         const bookmarkBtnExists = document.getElementsByClassName("bookmark-btn")[0];
         currentVideoBookmarks = await fetchBookmarks();
     
-        
-    
-        
-    
-        if (!bookmarkBtnExists) {
+         if (!bookmarkBtnExists) {
             const bookmarkBtn = document.createElement("img");
     
             bookmarkBtn.src = chrome.runtime.getURL("assets/bookmark.png");
@@ -51,17 +47,16 @@
             bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
         }
     }
-        newVideoLoaded();  //calling this function anytime the match pattern from the manifest file is met
-            // only problem is the button is appended twice but thats fine.
+        
 
       
         const addNewBookmarkEventHandler = async () => {
-        const currentTime = youtubePlayer.currentTime;  //current time is taken from the current time of the youtube video in seconds
-        const newBookmark = {
+            const currentTime = youtubePlayer.currentTime;  //current time is taken from the current time of the youtube video in seconds
+            const newBookmark = {
             time: currentTime,
-            desc: "Bookmark at " + getTime(currentTime)  // get time function converts the seconds into time 
+            desc: "Bookmark at " + getTime(currentTime),  // get time function converts the seconds into time 
         
-        };
+            };
 
         currentVideoBookmarks = await fetchBookmarks(); // resolves promise
         
@@ -69,6 +64,8 @@
             [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time)) //stores the data in JSON,
         });                                                                                                     // adds to the current bookmakr list the times of bookmarks in order
       };
+      newVideoLoaded();  //calling this function anytime the match pattern from the manifest file is met
+            // only problem is the button is appended twice but thats fine.
     
 })();
 
@@ -76,5 +73,5 @@ const getTime = t => {
     var date = new Date(0);
     date.setSeconds(t);
 
-    return date.toISOString().substr(11, 0);
+    return date.toISOString().substr(11, 8);
 }

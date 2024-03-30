@@ -1,7 +1,7 @@
 // adding a new bookmark row to the popup
 import {getCurrentTab} from "./utils.js";
 
-const addNewBookmark = (bookmarksElement, bookmark) => {
+const addNewBookmark = (bookmarks, bookmark) => {
     
     
     const bookmarkTitleElement = document.createElement("div");
@@ -11,18 +11,21 @@ const addNewBookmark = (bookmarksElement, bookmark) => {
     bookmarkTitleElement.textContent = bookmark.desc; // sets the discription bookmark description 
     bookmarkTitleElement.className = "bookmark-title";
 
-    controlsElement.className = "bookmakr-controls"
-
-    newBookmarkElement.id = "bookmark-" + bookmark.time; // sets a unique id name using the time stamp
-    newBookmarkElement.className = "bookmark"; //gives it a class to be manipulated in css
-    newBookmarkElement.setAttribute("timestamp",bookmark.time);  //gives it an attribute
+    controlsElement.className = "bookmark-controls"
 
     setBookmarkAttributes("play",onPlay,controlsElement); //sets attribute to play image on the controls element
     setBookmarkAttributes("delete",onDelete,controlsElement);
 
+    newBookmarkElement.id = "bookmark-" + bookmark.time; // sets a unique id name using the time stamp
+    
+    newBookmarkElement.className = "bookmark"; //gives it a class to be manipulated in css
+    newBookmarkElement.setAttribute("timestamp",bookmark.time);  //gives it an attribute
+     
+    
+
     newBookmarkElement.appendChild(bookmarkTitleElement); // appends bookmarkTitleElement to the newBookmarkElement div
     newBookmarkElement.appendChild(controlsElement);
-    bookmarksElement.appendChild(newBookmarkElement);    //appends newBookmarkElement to bookmarksElement
+    bookmarks.appendChild(newBookmarkElement);    //appends newBookmarkElement to bookmarksElement
 
 }
 
@@ -47,8 +50,8 @@ const onPlay = async e  => {  // async
 
     chrome.tabs.sendMessage(activeTab.id, {
         type: "PLAY",
-        value : bookmarkTime
-    })
+        value : bookmarkTime,
+    });
 };
 
 const onDelete = async e => {
@@ -56,12 +59,12 @@ const onDelete = async e => {
     const bookmarkTime =e.target.parentNode.parentNode.getAttribute("timestamp");
     const bookmarkElementToDelete = document.getElementById("bookmark-"+bookmarkTime); // grabs the elemnt to delete tothe unique Id given on creation
 
-    bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete)
+    bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete);
 
     chrome.tabs.sendMessage(activeTab.id,{
         type:"DELETE",
-        value:bookmarkTime
-    }, viewBookmarks) // passes in the callback function to refresh bookmarks so deletions show up right away
+        value:bookmarkTime,
+    }, viewBookmarks); // passes in the callback function to refresh bookmarks so deletions show up right away
 
 };
 
